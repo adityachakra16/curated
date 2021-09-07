@@ -16,6 +16,9 @@ Currently, our system uses a basic formula for calculating confidence given by,
 confidence = most_frequent_curation / total_curations
 ```
 
+If confidence is higher than 80% and above the minimum amount of curations required (currently set to 15), a grant is said to have completed curations. Depending on the most commonly picked option, the curation result is set as pass, fail or triage. We also have a maximum number of curations for each grant (currently set to 30) after which a grant cannot be curated any further. If this is the case, that means there is confusion regarding the validity of the grant and thus the system sets it as triage.
+
+
 ### **2. Interface simplicity**
 
 We made the interface similar to Gitcoin grants page and added a bit of gamification with badges. This is to make sure the user (who we are assuming has already interacted with the Gitcoin platform before) will find it very easy to use the curation platform while also have a sense of accomplishment upon leveling up or receiving a badge. The UI can be easily integrated in the current Gitcoin application. On top of the gitcoin grant interface we have added 3 curate buttons.
@@ -40,7 +43,8 @@ The user is given a proper tutorial when they first visit and sign in our app. W
 
 ### **4. Sybil Attack/ Bots Prevention**
 
-To prevent sybil attacks and bots, we only allow the app to be used if they sign in with google. Since in the future we expect this app to be integrated with the Gitcoin app, we can directly use from gitcoin the user logged info and can even allow the user to curate only if their trust is above lets say 50%. For now we have created a temporary login page.
+Users currently login to the app using their Google accounts and can connect Web3 wallets after that similar to how the actual Gitcoin platform does it with an user's Github account. Although this is not fully resistant to Sybil attacks as a person can have multiple Google accounts, it is still an improvement on just signing in from a Web3 wallet. In the future something like a proof of humanity would be ideal to prevent sybil attacks. 
+Since in the future we expect this app to be integrated with the Gitcoin app and users to be common accross both these platforms, we can let users have a common login for both the platforms.
 
 **Login page**
 ![Gitcoin interface](app/public/appimg4.JPG)
@@ -59,15 +63,7 @@ The advantage of having a streak based system is that a bot or fraudalent user c
 
 It is not possible to know if this incentivization method works well for such a system without experimentation but its a good starting point.
 
-One disadvantage of this method is that it doesn't completely get rid of bots. Someone can still make an income by running a bot. However, it would be much easier to identify bots as we can easily check the rewards earned against number of total curations.
-
-### **6. Verifiability**
-
-When we send the grant result for a particular grant, we include an ipfs link which contains the information about all the curations, since IPFS links cannot be changed, this can be used as a way to verify data if needed.
-
-## Backend
-
-We have used **Moralis** as our backend. In Moralis we have created 3 tables which help us in maintaining the state of our app. The detailed schema is given below.
+One disadvantage of this method is that it doesn't completely get rid of bots. Someone can still make an income by running a bot. However, it would be much easier to identify bots as we can easily check the rewards earned against number of total curations. Using this metric it will be possible to fully disincentivize bots and fraudulent curators in the future
 
 ## APIS
 
@@ -88,10 +84,32 @@ yarn start
 
 Sign in with any google account
 
+
+## Backend
+
+We have used **Moralis** as our backend. Main reason for choosing Moralis over more decentralized alternatives is the speed of experimentation. Multiple experiments related to the mechanism design such as rewards and quality of curations should be run initially before we actually decentralize parts of it. In Moralis we have created 3 tables which help us in maintaining the state of our app. The detailed schema is given below.
+
+
+## How to set up a Moralis server
+
+1. Go to https://moralis.io/ and sign up for free
+2. After signing up, choose appropriate settings and start a server instance
+3. Add cloud functions to the server defined in cloudFunction.js
+4. Following is the schema in Moralis - 
+
+### Tables 
+
+1. Grant
+2. Curation
+3. UserStats
+
+
+
+
 ## Summary and future scope(and some other design considerations)
 
 Although the application in its current state is centralized (as it uses a centralized server for storing curation metadata) to create a good user experiance and keep it secure, it can be progressively decentralized over time with some tradeoffs.
 
 For instance, each curation can be stored on IPFS and the content identifiers can be stored on chain. The curator's transaction fees can be forwarded to the grant owner using something like Biconomy. However, this system would sacrifice on the user experience as the curator would have to sign a transaction for each curation.
 
-Our app is also not currently optimized to be responsive.
+Our app is also not currently optimized to be responsive to different screen sizes.

@@ -12,34 +12,27 @@ contract Curator is Ownable {
     using SafeMath for uint32;
     using SafeERC20 for IERC20;
 
-    struct UserMetadata{
-        uint totalRewardsEarned;
-        uint32 curationsPendingRewards;
-        uint32 curationLockedRewards;
-        uint32 reputationScore;
-        uint32 experienceScore;
-    }
+    mapping (address => uint) private userToPendingRewards;
 
-    mapping(address => string[]) public userToCurationLinks;
-    mapping(string => string[]) public grantIdToCurationLinks;
-    mapping(address => UserMetadata) public userToMetadata;
-    uint private rewardAmount;
+    uint private rewardMultiplier;
     address private rewardToken;
-    constructor(address _rewardToken, uint _rewardAmount) {
+    constructor(address _rewardToken, uint _rewardMultiplier) {
         rewardToken = _rewardToken;
-        rewardAmount = _rewardAmount;
+        rewardMultiplier = _rewardMultiplier;
     }
 
-    function makeVerifiable(string[] calldata curations, string[] memory grantIds) external {
-        
+    function addPendingRewards(address[] calldata users, uint[] calldata amount) external onlyOwner {
+        for(uint i=0; i < users.length; i++){
+            userToPendingRewards[users[i]] = amount[i] * rewardMultiplier;
+        }
     }
 
     function changeRewardToken(address _rewardToken) external onlyOwner {
         rewardToken = _rewardToken;
     }
 
-    function changeRewardAmount( uint _rewardAmount) external onlyOwner {
-        rewardAmount = _rewardAmount;
+    function changeRewardAmount(uint _rewardMultiplier) external onlyOwner {
+        rewardMultiplier = _rewardMultiplier;
     }
 
     function addRewardBalance(uint amount) external onlyOwner {
@@ -47,7 +40,7 @@ contract Curator is Ownable {
     }
 
     function getRewarded() external {
-        IERC20(rewardToken).safeTransfer(msg.sender, uint(userToMetadata[msg.sender].curationsPendingRewards.sub(userToMetadata[msg.sender].curationLockedRewards)).mul(rewardAmount));
+        IERC20(rewardToken).safeTransfer(msg.sender, userToPendingRewards[msg.sender]);
     }
 
     function getRewardBalance() external view returns (uint){
