@@ -18,14 +18,14 @@ const App = () => {
   }, [email]);
 
   const responseGoogle = (response) => {
-    addUser("test5@gmail.com").then((res) => {
+    addUser(response.profileObj.email).then((res) => {
       console.log(res);
       if (res !== "User already exists") {
         setShowTutorial(true);
       }
     });
     if (response.profileObj.email) {
-      setEmail("test5@gmail.com");
+      setEmail(response.profileObj.email);
     }
   };
   return (
@@ -33,11 +33,7 @@ const App = () => {
       <Navbar badges={badges} />
       <Tutorial showTutorial={showTutorial} setShowTutorial={setShowTutorial} />
       {email !== "" ? (
-        <GrantDetail
-          email={"test5@gmail.com"}
-          badges={badges}
-          setBadges={setBadges}
-        />
+        <GrantDetail email={email} badges={badges} setBadges={setBadges} />
       ) : (
         <EmailLogin responseGoogle={responseGoogle} />
       )}
