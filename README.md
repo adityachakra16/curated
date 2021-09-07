@@ -2,6 +2,8 @@
 
 This project is a grant curation crowdsourcing application that was created during the Decentralized Governance Hackathon on Gitcoin and submitted to this bounty - https://gitcoin.co/issue/gitcoinco/skunkworks/245/100026394.
 
+Deployed site - https://prsjqna10ruh.bigmoralis.com/
+
 ## Design Approach
 
 For the prototype, we have thought about and addressed the following in a grant curation crowdsourcing application that is fully decentralized.
@@ -21,7 +23,7 @@ If confidence is higher than 80% and above the minimum amount of curations requi
 
 ### **2. Interface simplicity**
 
-We made the interface similar to Gitcoin grants page and added a bit of gamification with badges. This is to make sure the user (who we are assuming has already interacted with the Gitcoin platform before) will find it very easy to use the curation platform while also have a sense of accomplishment upon leveling up or receiving a badge. The UI can be easily integrated in the current Gitcoin application. On top of the gitcoin grant interface we have added 3 curate buttons.
+We made the interface similar to Gitcoin grants page and added a bit of gamification. This is to make sure the user (who we are assuming has already interacted with the Gitcoin platform before) will find it very easy to use the curation platform. The UI can be easily integrated in the current Gitcoin application. On top of the gitcoin grant interface we have added 3 curate buttons.
 
 Check the similarities below
 
@@ -67,9 +69,13 @@ One disadvantage of this method is that it doesn't completely get rid of bots. S
 
 ## APIS
 
-> /getAllCurations
+### Getting curations for individual grants
 
-> /getGrantsById
+> https://prsjqna10ruh.bigmoralis.com:2053/server/functions/getCurationsByGrant?_ApplicationId=fXF8ByjZ8EqWNMaKOoPWaZ1Pdd5nuwNB5DBqIaQR&grantId=3474
+
+### Getting all grants' curation results
+
+> https://prsjqna10ruh.bigmoralis.com:2053/server/functions/getAllCurationResults?_ApplicationId=fXF8ByjZ8EqWNMaKOoPWaZ1Pdd5nuwNB5DBqIaQR
 
 ## How to run locally
 
@@ -95,13 +101,32 @@ We have used **Moralis** as our backend. Main reason for choosing Moralis over m
 1. Go to https://moralis.io/ and sign up for free
 2. After signing up, choose appropriate settings and start a server instance
 3. Add cloud functions to the server defined in cloudFunction.js
-4. Following is the schema in Moralis - 
+4. Following is the schema for our curation database in Moralis - 
 
 ### Tables 
 
 1. Grant
+    - grantId (string)
+    - numYes (integer, default = 0)
+    - numNo (integer, default = 0)
+    - numUnsure (integer, default = 0)
+    - curationsCompleted (bool, default = false)
+    - minCurationsForCompletion (integer)
+    - maxCurationsForCompletion (integer)
+    - status (string, default= = 'pending')
+    - confidence (integer, default = 0)
+
 2. Curation
+    - grantId (string) - foreign key to Grant table
+    - user (string) - foreign key to email in UserStats table
+    - valid (string) - This field stroes the curations - yes, not or unsure
 3. UserStats
+    - email (string)
+    - numCurations (integer, default = 0)
+    - highestStreak (integer, default = 0)
+    - pendingPayment (integer, default = 0)
+    - currentStreak (integer, default = 0)
+    - badgeName (string)
 
 
 
