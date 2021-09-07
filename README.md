@@ -77,6 +77,8 @@ One disadvantage of this method is that it doesn't completely get rid of bots. S
 
 > https://prsjqna10ruh.bigmoralis.com:2053/server/functions/getAllCurationResults?_ApplicationId=fXF8ByjZ8EqWNMaKOoPWaZ1Pdd5nuwNB5DBqIaQR
 
+Please note that the application Id is given here just for testing purposes. It should not be exposed in production unless necessary security measures have been taken.
+
 ## How to run locally
 
 Run the following commands
