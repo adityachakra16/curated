@@ -10,8 +10,8 @@ For the basic UI we decided to use the same frontend Gitcoin uses to display the
 
 Check the similarities below
 
-![Our app interface]("/app/public/appimg1.JPG)
-![Gitcoin interface]("/app/public/gitimg1.JPG)
+![Our app interface](app/public/appimg1.JPG)
+![Gitcoin interface](app/public/gitimg1.JPG)
 
 Try running some of the following tasks:
 
