@@ -16,7 +16,7 @@ Currently, our system uses a basic formula for calculating confidence given by,
 confidence = most_frequent_curation / total_curations
 ```
 
-### **2. Interface simplicity **
+### **2. Interface simplicity**
 
 We made the interface similar to Gitcoin grants page and added a bit of gamification with badges. This is to make sure the user (who we are assuming has already interacted with the Gitcoin platform before) will find it very easy to use the curation platform while also have a sense of accomplishment upon leveling up or receiving a badge. The UI can be easily integrated in the current Gitcoin application. On top of the gitcoin grant interface we have added 3 curate buttons.
 
