@@ -1,6 +1,17 @@
-# Basic Sample Hardhat Project
+# Grant Curation Game User Interface & Backend
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+This project is a submission to the curation game user grant on Gitcoin.
+
+## Design Approach
+
+### UI
+
+For the basic UI we decided to use the same frontend Gitcoin uses to display the grants. With this approach Gitcoin can easily integrate this project in their website.
+
+Check the similarities below
+
+![Our app interface]("/app/public/appimg1.JPG)
+![Gitcoin interface]("/app/public/gitimg1.JPG)
 
 Try running some of the following tasks:
 
