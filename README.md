@@ -30,7 +30,7 @@ Check the similarities below
 
 ### **3. User Guidance**
 
-The user is given a proper tutorial when they first visit and sign in our app. We also have hints at various sections which indicating the requirements.
+The user is given a proper tutorial when they first visit and sign in our app. We also have hints at various sections which indicate the requirements.
 
 **Initial Tutorial**
 ![Gitcoin interface](app/public/appimg2.JPG)
@@ -40,7 +40,7 @@ The user is given a proper tutorial when they first visit and sign in our app. W
 
 ### **4. Sybil Attack/ Bots Prevention**
 
-To prevent sybil attacks and bots, we only allow the app to be used if they sign in with google. Since in the future we expect this app to be integrated with the Gitcoin app, we can directly use from gitcoin the user logged info and can even allow the user to curate only of their trust is above lets say 50%. For now we have created a temporary login page.
+To prevent sybil attacks and bots, we only allow the app to be used if they sign in with google. Since in the future we expect this app to be integrated with the Gitcoin app, we can directly use from gitcoin the user logged info and can even allow the user to curate only if their trust is above lets say 50%. For now we have created a temporary login page.
 
 **Login page**
 ![Gitcoin interface](app/public/appimg4.JPG)
@@ -61,7 +61,7 @@ It is not possible to know if this incentivization method works well for such a 
 
 One disadvantage of this method is that it doesn't completely get rid of bots. Someone can still make an income by running a bot. However, it would be much easier to identify bots as we can easily check the rewards earned against number of total curations.
 
-### **6. Verifiebility**
+### **6. Verifiability**
 
 When we send the grant result for a particular grant, we include an ipfs link which contains the information about all the curations, since IPFS links cannot be changed, this can be used as a way to verify data if needed.
 
@@ -88,8 +88,10 @@ yarn start
 
 Sign in with any google account
 
-## Summary (and some other design considerations)
+## Summary and future scope(and some other design considerations)
 
 Although the application in its current state is centralized (as it uses a centralized server for storing curation metadata) to create a good user experiance and keep it secure, it can be progressively decentralized over time with some tradeoffs.
 
 For instance, each curation can be stored on IPFS and the content identifiers can be stored on chain. The curator's transaction fees can be forwarded to the grant owner using something like Biconomy. However, this system would sacrifice on the user experience as the curator would have to sign a transaction for each curation.
+
+Our app is also not currently optimized to be responsive.
