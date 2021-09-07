@@ -11,20 +11,20 @@ Moralis.Cloud.define("addCuration", async (request) => {
     userQuery.equalTo("email", request.params.email)
     var user = await userQuery.first()
     logger.info("user", JSON.stringify(user))
-    if (user == null){
+    if (user === 'undefined'){
         user = new Moralis.Object("UserStats")
         user.set("email", request.params.email)
         user.set("numCurations", 1)
     }
     else{
         user.increment("numCurations")
-        if (user.numCurations === 1){
+        if (user.get("numCurations") === 1){
             user.set("badgeName", "Newbie")
         }
-        else if (user.numCurations === 10){
+        else if (user.get("numCurations") === 10){
             user.set("badgeName", "Amateur")
         }
-        else if (user.numCurations === 50){
+        else if (user.get("numCurations") === 50){
             user.set("badgeName", "Pro")
         }
     }
@@ -33,21 +33,27 @@ Moralis.Cloud.define("addCuration", async (request) => {
     grantQuery.equalTo("grantId", request.params.grantId)
     grantQuery.equalTo("curationsCompleted", false)
     var grant = await grantQuery.first()
-
     if (request.params.valid == 'Yes'){
         grant.increment("numYes")
-        var confidence = grant.numYes / (grant.numYes + grant.numNo + grant.numUnsure)
+        
     }
     else if (request.params.valid == 'No'){
         grant.increment("numNo")
-        var confidence = grant.numNo / (grant.numYes + grant.numNo + grant.numUnsure)
     }
     else if (request.params.valid == 'Unsure'){
         grant.increment("numUnsure")
-        var confidence = grant.numUnsure / (grant.numYes + grant.numNo + grant.numUnsure)
     }
 
-    if (grant.numYes + grant.numNo + grant.numUnsure >= grant.minCurations && confidence > 0.8){
+    var confidenceYes = grant.get("numYes") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure"))
+
+    var confidenceNo = grant.get("numNo") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure"))
+
+    var confidenceUnsure = grant.get("numUnsure") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure"))
+
+
+    var confidence = Math.max(confidenceYes, confidenceNo, confidenceUnsure)
+    logger.info(`confidence ${confidence}, confidenceYes ${confidenceYes}, ${confidenceNo}, ${confidenceUnsure}`)
+    if ((grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure") >= grant.get("minCurationsForCompletion") && confidence >= 0.8) || grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure") === grant.get("maxCurationsForCompletion")){
         grant.set("curationsCompleted", true)
     }
 
@@ -108,7 +114,7 @@ Moralis.Cloud.define("getPendingGrantProposals", async (request) => {
         var curationSet = new Set()
 
         for (var curation of curations){
-            curationSet.add(curation.grantId)
+            curationSet.add(curation.get("grantId"))
         }
     }
     catch (err) {
@@ -118,7 +124,7 @@ Moralis.Cloud.define("getPendingGrantProposals", async (request) => {
 
     var pendingGrants = []
     for (var grant of grants){
-        if (!curationSet.has(grant.grantId)){
+        if (!curationSet.has(grant.get("grantId"))){
             pendingGrants.push(grant)
         }
     }
@@ -150,11 +156,12 @@ Moralis.Cloud.define("getAllCurationResults", async (request) => {
     }
 
     for (var grant of grants){
-        if (grant.curationsCompleted === true){
-            response.Grants[grant.grantId] = (grant.numYes / (grant.numYes + grant.numNo + grant.numUnsure)) > 0.90 ? 'pass' : 'fail'
+        if (grant.get("curationsCompleted") === true){
+            response.Grants[grant.get("grantId")] = grant.get("status")
+                                    
         }
         else {
-            response.Grants[grant.grantId] = 'pending'
+            response.Grants[grant.get("grantId")] = 'pending'
         }
 
     }
@@ -208,7 +215,8 @@ Moralis.Cloud.define("getCurationsByGrant", async (request) => {
     try {
         var grant = await grantQuery.first()
         response.id = request.params.grantId
-        response.result = (grant.numYes / (grant.numYes + grant.numNo + grant.numUnsure)) > 0.90 ? 'pass' : 'fail'
+        response.result = grant.get("status")
+        response.confidence = grant.get("confidence")
         response.data.content = response.result
         response.data.category = response.result
         response.data.legit = response.result
@@ -232,13 +240,29 @@ Moralis.Cloud.define("getCurationsByGrant", async (request) => {
 
 
 Moralis.Cloud.define("addUser", async (request) => {
-    var userStats = new Moralis.Object("UserStats"); 
-    userStats.set("email", request.params.email)
-    userStats.set("numCurations", 0)
-    userStats.set("badgeName", null)
-    userStats.set("currentStreak", 0)
-    userStats.set("highestStreak", 0)
-    userStats.set("pendingPayment", 0)
+    const logger = Moralis.Cloud.getLogger();
+
+    var userStats = new Moralis.Query("UserStats"); 
+    userStats.equalTo("email", request.params.email)
+    var user = await userStats.first()
+
+    logger.info(`user: ${JSON.stringify(user)}`)
+    if (!user){
+        user = new Moralis.Object("UserStats"); 
+        user.set("email", request.params.email)
+        user.set("numCurations", 0)
+        user.set("badgeName", null)
+        user.set("currentStreak", 0)
+        user.set("highestStreak", 0)
+        user.set("totalRewards", 0)
+    
+        await user.save()
+        return 'User added'
+
+    }
+    else{
+        return 'User already exists'
+    }
 
 });
 
@@ -247,53 +271,101 @@ Moralis.Cloud.define("addUser", async (request) => {
 Moralis.Cloud.afterSave("Grant", async (request) => {
     const logger = Moralis.Cloud.getLogger();
 
-    if (request.object?.get("curationsCompleted") === true){
+    if (request.object?.get("curationsCompleted") === true && request.object?.get("status") === 'pending'){
+        
         var saveArray = []
         var grantQuery = new Moralis.Query("Grant")
         grantQuery.equalTo("grantId", request.object.get("grantId"))
         var curationValid = ''
         try {
             var grant = await grantQuery.first()
-            if (grant.numYes / (grant.numYes + grant.numNo + grant.numUnsure) > 0.9){
+            logger.info(`Grant ${JSON.stringify(grant)}`)
+            
+            if (grant.get("numYes") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure")) >= 0.8){
                 curationValid = 'Yes'
+                grant.set("status", "pass")
             }
-            else if (grant.numNo / (grant.numYes + grant.numNo + grant.numUnsure) > 0.9){
+            else if (grant.get("numNo") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure")) >= 0.8){
                 curationValid = 'No'
+                grant.set("status", "fail")
+
             }
-            else if (grant.numUnsure / (grant.numYes + grant.numNo + grant.numUnsure) > 0.9){
+            else if (grant.get("numUnsure") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure")) >= 0.8){
                 curationValid = 'Unsure'
+                grant.set("status", "triage")
             }
+            else {
+                grant.set("status", "triage")
+            }
+
+            
+            if (grant.get("numYes") > grant.get("numNo") && grant.get("numYes") > grant.get("numUnsure")){
+                grant.set("confidence", grant.get("numYes") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure")))
+            }
+            else if (grant.get("numNo") > grant.get("numYes") && grant.get("numNo") > grant.get("numUnsure")){
+                grant.set("confidence", grant.get("numNo") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure")))
+            }
+            else {
+                grant.set("confidence", grant.get("numUnsure") / (grant.get("numYes") + grant.get("numNo") + grant.get("numUnsure")))
+            }
+            
+            saveArray.push(grant)
+            
         }
         catch (err) {
-            logger.error(`Failed to find proposals`);
+            logger.error(JSON.stringify(err));
         }
-
+        
         var curationQuery = new Moralis.Query("Curation")
         curationQuery.equalTo("grantId", request.object.get("grantId"))
         try {
             var curations = await curationQuery.find()
+            logger.info(`Curations ${JSON.stringify(curations)}`)
+
+            var users = []
+            var totalCurrentStreak = 0
+            
+            
             for (var curation of curations){
-                var userStatsQuery = new Moralis.Query("Curation")
-                userStatsQuery.equalTo("email", curation.user)
+                var userStatsQuery = new Moralis.Query("UserStats")
+                userStatsQuery.equalTo("email", curation.get("user"))
                 var user = await userStatsQuery.first()
-                if (curation.valid == curationValid || curationValid === ''){
+                logger.info(`User ${JSON.stringify(user)}`)
+
+                
+                users.push(user)
+                logger.info(`User second log ${JSON.stringify(user)}`)
+
+                if (curation.get("valid") === curationValid || curationValid === ''){
                     user.increment("currentStreak")
-                    if (user.currentStreak > user.highestStreak){
-                        user.highestStreak = user.currentStreak
+                    if (user.get("currentStreak") > user.get("highestStreak")){
+                        user.increment("highestStreak")
                     }
+                    
                 }
                 else{
-                    user.currentStreak = 0
+                    user.set("currentStreak",0) 
                 }
+                totalCurrentStreak += user.get("currentStreak")
 
+            }
+
+            for (var user of users){
+                logger.info(`totalRewards: ${user.get("totalRewards")}`)
+                logger.info(`curations.length: ${curations.length}`)
+                logger.info(`user.get("currentStreak"): ${user.get("currentStreak")}`)
+                logger.info(`totalCurrentStreak: ${totalCurrentStreak}`)
+
+                user.set("totalRewards", user.get("totalRewards") + (curations.length * user.get("currentStreak") / totalCurrentStreak))
                 saveArray.push(user)
             }
-            await Moralis.saveAll(saveArray)
+            logger.info(`Save array ${JSON.stringify(saveArray)}`)
+
+            await Moralis.Object.saveAll(saveArray, { useMasterKey: true })
         }
         catch (err) {
-            logger.error(`Failed to find proposals`);
+            logger.error(err);
         }
     }
 });
 
-//Weight payments by running streak from the pool for that specific grant
