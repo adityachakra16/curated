@@ -385,7 +385,7 @@ const EmailLogin = (props) => {
         <div className="flex flex-row justify-center items-center">
           <div className="p-2 mt-4">
             <GoogleLogin
-              clientId="417218034938-oq8bj7idr0gqta7l0fs8748os68r8v85.apps.googleusercontent.com"
+              clientId="417218034938-8e9v773muol74u0to36p5khrhpgubm76.apps.googleusercontent.com"
               onSuccess={props.responseGoogle}
               onFailure={props.responseGoogle}
               buttonText="Sign in with Google"
