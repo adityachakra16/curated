@@ -67,6 +67,10 @@ It is not possible to know if this incentivization method works well for such a 
 
 One disadvantage of this method is that it doesn't completely get rid of bots. Someone can still make an income by running a bot. However, it would be much easier to identify bots as we can easily check the rewards earned against number of total curations. Using this metric it will be possible to fully disincentivize bots and fraudulent curators in the future
 
+### **6. Verifiability**
+
+We store all the curations for each grant on ipfs. Storing it on IPFS makes it immutable, hence can be used anytime to verify the curations. We send the ipfs link when individual grant result API is called.
+
 ## APIS
 
 ### Getting curations for individual grants
@@ -135,8 +139,8 @@ We have used **Moralis** as our backend. Main reason for choosing Moralis over m
 
 ## Summary and future scope(and some other design considerations)
 
-Although the application in its current state is centralized (as it uses a centralized server for storing curation metadata) to create a good user experiance and keep it secure, it can be progressively decentralized over time with some tradeoffs.
+Although the application in its current state might seem centralized (as it uses a centralized server for storing curation metadata) to create a good user experiance and keep it secure, the way the grants are curated by multiple users and how each users curation has an effect on the result makes the actual system decentralized. The infrastructure however can be progressively decentralized over time with some tradeoffs.
 
-For instance, each curation can be stored on IPFS and the content identifiers can be stored on chain. The curator's transaction fees can be forwarded to the grant owner using something like Biconomy. However, this system would sacrifice on the user experience as the curator would have to sign a transaction for each curation.
+For instance, the IPFS content identifiers can be stored on chain. The curator's transaction fees can be forwarded to the grant owner using something like Biconomy. However, this system would sacrifice on the user experience as the curator would have to sign a transaction for each curation.
 
 Our app is also not currently optimized to be responsive to different screen sizes.
