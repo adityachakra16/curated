@@ -55,10 +55,6 @@ Since in the future we expect this app to be integrated with the Gitcoin app and
 
 Curators are rewarded for curating a grant based on their streak and the total streak of all curators that have curated that grant. For example, if there are 50 curators for a grant and all of them have a streak of 5, they will all get an equal share of the rewards for that grant. However, if one person has a streak of 10, their reward share will be calculated as follows:
 
-### **6. Verifiability**
-
-We store all the curations for each grant on ipfs. Storing it on IPFS makes it immutable, hence can be used anytime to verify the curations. We send the ipfs link when individual grant result API is called.
-
 ```shell
 reward = 10 / (5 * 49 + 10 * 1)
 ```
@@ -70,6 +66,10 @@ The advantage of having a streak based system is that a bot or fraudalent user c
 It is not possible to know if this incentivization method works well for such a system without experimentation but its a good starting point.
 
 One disadvantage of this method is that it doesn't completely get rid of bots. Someone can still make an income by running a bot. However, it would be much easier to identify bots as we can easily check the rewards earned against number of total curations. Using this metric it will be possible to fully disincentivize bots and fraudulent curators in the future
+
+### **6. Verifiability**
+
+We store all the curations for each grant on ipfs. Storing it on IPFS makes it immutable, hence can be used anytime to verify the curations. We send the ipfs link when individual grant result API is called.
 
 ## APIS
 
