@@ -55,6 +55,10 @@ Since in the future we expect this app to be integrated with the Gitcoin app and
 
 Curators are rewarded for curating a grant based on their streak and the total streak of all curators that have curated that grant. For example, if there are 50 curators for a grant and all of them have a streak of 5, they will all get an equal share of the rewards for that grant. However, if one person has a streak of 10, their reward share will be calculated as follows:
 
+### **6. Verifiability**
+
+We store all the curations for each grant on ipfs. Storing it on IPFS makes it immutable, hence can be used anytime to verify the curations. We send the ipfs link when individual grant result API is called.
+
 ```shell
 reward = 10 / (5 * 49 + 10 * 1)
 ```
@@ -135,8 +139,8 @@ We have used **Moralis** as our backend. Main reason for choosing Moralis over m
 
 ## Summary and future scope(and some other design considerations)
 
-Although the application in its current state is centralized (as it uses a centralized server for storing curation metadata) to create a good user experiance and keep it secure, it can be progressively decentralized over time with some tradeoffs.
+Although the application in its current state might seem centralized (as it uses a centralized server for storing curation metadata) to create a good user experiance and keep it secure, the way the grants are curated by multiple users and how each users curation has an effect on the result makes the actual system decentralized. The infrastructure however can be progressively decentralized over time with some tradeoffs.
 
-For instance, each curation can be stored on IPFS and the content identifiers can be stored on chain. The curator's transaction fees can be forwarded to the grant owner using something like Biconomy. However, this system would sacrifice on the user experience as the curator would have to sign a transaction for each curation.
+For instance, the IPFS content identifiers can be stored on chain. The curator's transaction fees can be forwarded to the grant owner using something like Biconomy. However, this system would sacrifice on the user experience as the curator would have to sign a transaction for each curation.
 
 Our app is also not currently optimized to be responsive to different screen sizes.
